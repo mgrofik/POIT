@@ -32,7 +32,8 @@ ser.baudrate = 9600
 
 def background_thread(args):
     count = 0  
-    dataCounter = 0 
+    dataCounter = 0
+    q = 0
     dataList = []  
     db = MySQLdb.connect(host=myhost,user=myuser,passwd=mypasswd,db=mydb)
     while True:
@@ -48,6 +49,7 @@ def background_thread(args):
         socketio.sleep(2)
         count += 1
         dataCounter +=1
+        q+=1
         h = ser.readline()
         h = h.decode()
         t = ser.readline()
@@ -62,7 +64,9 @@ def background_thread(args):
           dataDict = {            
             "h": h,
             "t": t,
-            "p": p}
+            "p": p,
+            "x": dataCounter,
+            "q": q}
           dataList.append(dataDict)
         else:
           if len(dataList)>0:
@@ -76,7 +80,7 @@ def background_thread(args):
             db.commit()
           dataList = []
           dataCounter = 0
-        socketio.emit('my_response', {'datah': h, 'datat': t,'datap': p}, namespace='/test')  
+        socketio.emit('my_response', {'datah': h, 'datat': t,'datap': p,'datax': dataCounter,'dataq': q}, namespace='/test')  
     db.close()
 
 @app.route('/')
@@ -86,7 +90,15 @@ def index():
 @app.route('/graph', methods=['GET', 'POST'])
 def graph():
     return render_template('graph.html', async_mode=socketio.async_mode)
-    
+
+@app.route('/graphlive', methods=['GET', 'POST'])
+def graphlive():
+    return render_template('graphlive.html', async_mode=socketio.async_mode)
+
+@app.route('/gauge', methods=['GET', 'POST'])
+def gauge():
+    return render_template('gauge.html', async_mode=socketio.async_mode)
+
 @app.route('/db')
 def db():
   db = MySQLdb.connect(host=myhost,user=myuser,passwd=mypasswd,db=mydb)
@@ -113,10 +125,10 @@ def test_message(message):
 
 @socketio.on('db_event', namespace='/test')
 def db_message(message):   
-#    session['receive_count'] = session.get('receive_count', 0) + 1 
+    #session['receive_count'] = session.get('receive_count', 0) + 1 
     session['db_value'] = message['value']    
-#    emit('my_response',
-#         {'data': message['value'], 'count': session['receive_count']})
+    #emit('my_response',
+      #   {'data': message['value'], 'count': session['receive_count']})
 
 @socketio.on('disconnect_request', namespace='/test')
 def disconnect_request():
