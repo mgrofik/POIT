@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>Flask-SocketIO Test</title>
+   <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.5/socket.io.min.js"></script>
+   <script src="static/libs/gauge.min.js"></script>
+   <script type="text/javascript" charset="utf-8">
+   //https://canvas-gauges.com/documentation/user-guide/configuration
+     $(document).ready(function() {    
+      var gauge = new RadialGauge({
+          renderTo: 'canvasID',
+          width: 300,
+          height: 300,
+          units: "humidity (%)",
+          minValue: 0,
+          maxValue: 100,
+          majorTicks: [
+              "0",
+              "10",
+              "20",
+              "30",
+              "40",
+              "50",
+              "60",
+              "70",
+              "80",
+              "90",
+              "100"
+          ],
+          minorTicks: 2,
+          strokeTicks: true,
+          highlights: [
+              {
+                  "from": 0.5,
+                  "to": 1,
+                  "color": "rgba(200, 50, 50, .75)"
+              }
+          ],
+          colorPlate: "#fff",
+          borderShadowWidth: 0,
+          borders: false,
+          needleType: "arrow",
+          needleWidth: 2,
+          needleCircleSize: 7,
+          needleCircleOuter: true,
+          needleCircleInner: false,
+          animationDuration: 1500,
+          animationRule: "linear"
+      });
+      gauge.draw();
+      gauge.value = "0";
+
+        var gauge1 = new RadialGauge({
+          renderTo: 'canvasID1',
+          width: 300,
+          height: 300,
+          units: "temperature (°C)",
+          minValue: 0,
+          maxValue: 50,
+          majorTicks: [
+              "0",
+              "5",
+              "10",
+              "15",
+              "20",
+              "25",
+              "30",
+              "35",
+              "40",
+              "45",
+              "50"
+          ],
+          minorTicks: 2,
+          strokeTicks: true,
+          highlights: [
+              {
+                  "from": 0.5,
+                  "to": 1,
+                  "color": "rgba(200, 50, 50, .75)"
+              }
+          ],
+          colorPlate: "#fff",
+          borderShadowWidth: 0,
+          borders: false,
+          needleType: "arrow",
+          needleWidth: 2,
+          needleCircleSize: 7,
+          needleCircleOuter: true,
+          needleCircleInner: false,
+          animationDuration: 1500,
+          animationRule: "linear"
+      });
+      gauge1.draw();
+      gauge1.value = "0";
+      
+      var gauge2 = new RadialGauge({
+          renderTo: 'canvasID2',
+          width: 300,
+          height: 300,
+          units: "pressure (Pa)",
+          minValue: 99000,
+          maxValue: 100600,
+          majorTicks: [
+              "99000",
+              "99200",
+              "99400",
+              "99600",
+              "99700",
+              "99800",
+              "100000",
+              "100200",
+              "100400",
+              "100600"
+          ],
+          minorTicks: 2,
+          strokeTicks: true,
+          highlights: [
+              {
+                  "from": 0.5,
+                  "to": 1,
+                  "color": "rgba(200, 50, 50, .75)"
+              }
+          ],
+          colorPlate: "#fff",
+          borderShadowWidth: 0,
+          borders: false,
+          needleType: "arrow",
+          needleWidth: 2,
+          needleCircleSize: 7,
+          needleCircleOuter: true,
+          needleCircleInner: false,
+          animationDuration: 1500,
+          animationRule: "linear"
+      });
+      gauge2.draw();
+      gauge2.value = "0";
+      
+      namespace = '/test';
+      var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+      socket.on('connect', function() {
+        socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
+
+      socket.on('my_response', function(msg) {
+        console.log(msg.datah);
+        $('#log').append('humidity: '+msg.datah+' %, temperature: '+msg.datat+' °C, pressure: '+msg.datap+' Pa <br>').html();  
+        gauge.value = msg.datah;
+        gauge1.value = msg.datat; 
+        gauge2.value = msg.datap;          
+        });
+      
+      $('form#emit').submit(function(event) {
+          socket.emit('my_event', {value: $('#emit_value').val()});
+          return false; });
+      $('#buttonVal').click(function(event) {
+          //console.log($('#buttonVal').val());
+          socket.emit('click_event', {value: $('#buttonVal').val()});
+          return false; });
+      $('form#disconnect').submit(function(event) {
+          socket.emit('disconnect_request');
+          return false; });         
+           });
+    </script>
+ </head>
+ <body>
+  <h1>Gauge</h1>
+  <canvas id="canvasID"></canvas>
+  <canvas id="canvasID1"></canvas>
+  <canvas id="canvasID2"></canvas>
+  <h2>Receive:</h2>
+  <div id="log"></div>
+ </body>
+</html>

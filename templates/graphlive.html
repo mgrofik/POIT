@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>Flask-SocketIO Test</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.5/socket.io.min.js"></script>
+
+   <script src="static/libs/jquery-1.11.1.min.js"></script>
+   <script src="static/libs/plotly-latest.min.js"></script>
+   <script type="text/javascript" charset="utf-8">
+     $(document).ready(function() {    
+      var x = new Array();
+      var h = new Array();
+      var t = new Array();
+      var p = new Array();
+      var q = new Array();
+      
+      var trace;
+      //var tracez;
+      var layout;
+      
+      namespace = '/test';
+      var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+      socket.on('connect', function() {
+        socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
+
+      socket.on('my_response', function(msg) {
+        console.log(msg.data);
+        $('#log').append('x: '+msg.dataq+ ' humidity: '+msg.datah+' %, temperature: '+msg.datat+' °C, pressure: '+msg.datap+' Pa <br>').html();   
+        x.push(parseFloat(msg.datax));
+        h.push(parseFloat(msg.datah));
+        t.push(parseFloat(msg.datat));
+        p.push(parseFloat(msg.datap));
+        q.push(parseFloat(msg.dataq));
+        trace = {
+            x: q,
+            y: h,
+            name: 'Graf vlhkosti vzduchu'
+        }; 
+        tracet = {
+            x: q,
+            y: t,
+            name: 'Graf teploty vzduchu'
+        }; 
+        tracep = {
+            x: q,
+            y: p,
+            name: 'Graf tlaku vzduchu'
+        }; 
+              
+        layout = {
+          title: 'Graf vlhkosti vzduchu',
+          xaxis: {
+              title: 'time (s)',
+          },
+          yaxis: {
+              title: 'humidity (%)',
+              range: [0,100]
+          }
+        };
+        layout1 = {
+          title: 'Graf teploty vzduchu',
+          xaxis: {
+              title: 'time (s)',
+          },
+          yaxis: {
+              title: 'temperature (°C)',
+              range: [0,50]
+          }
+        };
+        layout2 = {
+          title: 'Graf tlaku vzduchu',
+          xaxis: {
+              title: 'time (s)',
+          },
+          yaxis: {
+              title: 'pressure (Pa)',
+              range: [99000,100500]
+          }
+        };
+        console.log(trace);
+        var traces = new Array();
+        var traces1 = new Array();
+        var traces2 = new Array();
+        traces.push(trace);
+        traces1.push(tracet);
+        traces2.push(tracep);
+        
+        Plotly.newPlot($('#plotdiv')[0], traces, layout); 
+        Plotly.newPlot($('#plotdiv1')[0], traces1, layout1);
+        Plotly.newPlot($('#plotdiv2')[0], traces2, layout2);
+        //addTraces               
+        });
+      $('form#emit').submit(function(event) {
+          socket.emit('my_event', {value: $('#emit_value').val()});
+          return false; });
+      $('#buttonVal').click(function(event) {
+          //console.log($('#buttonVal').val());
+          socket.emit('click_event', {value: $('#buttonVal').val()});
+          return false; });
+      $('form#disconnect').submit(function(event) {
+          socket.emit('disconnect_request');
+          return false; });         
+      });
+    </script>
+ </head>
+ <body>
+  <h1>Graph live</h1>
+  <div id="plotdiv" style="width:600px;height:250px;"></div>
+  <div id="plotdiv1" style="width:600px;height:250px;"></div>
+  <div id="plotdiv2" style="width:600px;height:250px;"></div>
+  <h2>Receive:</h2>
+  <div id="log"></div>
+ </body>
+</html>
