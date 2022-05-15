@@ -12,19 +12,41 @@
   <script>
    $(document).ready(function(){
     var layout = {
-          title: 'Graf',
+          title: 'Graf vlhkosti vzduchu',
           xaxis: {
-            title: 'time',
-            range: [0,200]
+            title: 'time (s)',
+            range: [0,40]
           },
           yaxis: {
-            title: 'ys(t)',
-            range: [-1.2,1.2]
+            title: 'humidity (%)',
+            range: [0,100]
           }
-        };    
+        };  
+    var layout1 = {
+          title: 'Graf teploty',
+          xaxis: {
+            title: 'time (s)',
+            range: [0,40]
+          },
+          yaxis: {
+            title: 'temperature (°C)',
+            range: [0,50]
+          }
+        }; 
+    var layout2 = {
+          title: 'Graf tlaku vzduchu',
+          xaxis: {
+            title: 'time (s)',
+            range: [0,40]
+          },
+          yaxis: {
+            title: 'pressure (Pa)',
+            range: [99000,100500]
+          }
+        };              
     $.ajax({
       type: "POST",
-      url: "/dbdata/3",
+      url: "/dbdata/5",
       success:function(data) 
       { console.log(data);  
         data = JSON.parse(data);
@@ -32,30 +54,29 @@
         n = Object.keys(data).length;
         console.log(n);
         
+        hl = [];
+        tl = [];
+        pl = [];
         xl = [];
-        yl = [];
-        zl = [];
 
         for (var i=0; i< n; i++){
-          xl.push(data[i].x);
-          yl.push(data[i].y); 
-          zl.push(data[i].z);}
+          hl.push(data[i].h);
+          tl.push(data[i].t); 
+          pl.push(data[i].p);
+          xl.push(data[i].x);}
         let trace = [{
             x: xl,
-            y: yl}];
-        let tracez = [{
+            y: hl}];
+        let tracet = [{
             x: xl,
-            y: zl}];  
-        
-        var traces = [
-        {x: xl, y: yl},
-        {x: xl, y: zl}
-        ];
-        
-        Plotly.newPlot($('#plotdiv')[0], traces, layout); 
+            y: tl}];  
+        let tracep = [{
+            x: xl,
+            y: pl}]; 
       
-        //Plotly.newPlot($('#plotdiv')[0], trace, layout); 
-        //Plotly.newPlot($('#plotdiv')[0], tracez,layout);         
+        Plotly.newPlot($('#plotdiv')[0], trace, layout); 
+        Plotly.newPlot($('#plotdiv1')[0], tracet,layout1);  
+        Plotly.newPlot($('#plotdiv2')[0], tracep,layout2);         
       }
     }).done(function( o ) {
        // do something
@@ -67,6 +88,7 @@
 <body>
  
     <div id="plotdiv" style="width:800px;height:450px;"></div>
-      
+    <div id="plotdiv1" style="width:800px;height:450px;"></div>
+    <div id="plotdiv2" style="width:800px;height:450px;"></div>    
 </body>
 </html> 
