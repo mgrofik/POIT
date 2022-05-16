@@ -27,12 +27,6 @@ void loop() {
   float t = dht.readTemperature();
   float f = dht.readTemperature(true);
 
-
-  // Compute heat index in Fahrenheit (the default)
-  float hif = dht.computeHeatIndex(f, h);
-  // Compute heat index in Celsius (isFahreheit = false)
-  float hic = dht.computeHeatIndex(t, h, false);
-
   //Serial.print(F("Humidity: "));
   Serial.println(h);
  // Serial.print(" ");
