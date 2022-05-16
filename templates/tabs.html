@@ -1,0 +1,476 @@
+<!doctype html>                                   
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Zadanie POIT</title>
+    <!-- http://jqueryui.com/tabs/#mouseover -->
+    <link rel="stylesheet" href="static/jquery-ui.min.css">
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.5/socket.io.min.js"></script>
+    <script src="static/plotly-latest.min.js"></script>
+    <script src="static/jquery-3.2.1.min.js"></script>
+    <script src="static/jquery-ui.min.js"></script>
+    <script src="static/gauge.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+          $(document).ready(function() {    
+      var x = new Array();
+      var h = new Array();
+      var t = new Array();
+      var p = new Array();
+      var q = new Array();
+      
+      var trace;
+      //var tracez;
+      var layout;
+      
+      namespace = '/test';
+      var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+      socket.on('connect', function() {
+        socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
+
+      socket.on('my_response', function(msg) {
+        //console.log(msg.data);
+        //$('#log').append('x: '+msg.dataq+ ' humidity: '+msg.datah+' %, temperature: '+msg.datat+' °C, pressure: '+msg.datap+' Pa <br>').html();   
+        x.push(parseFloat(msg.datax));
+        h.push(parseFloat(msg.datah));
+        t.push(parseFloat(msg.datat));
+        p.push(parseFloat(msg.datap));
+        q.push(parseFloat(msg.dataq));
+        trace = {
+            x: q,
+            y: h,
+            name: 'Air humidity'
+        }; 
+        tracet = {
+            x: q,
+            y: t,
+            name: 'Temperature'
+        }; 
+        tracep = {
+            x: q,
+            y: p,
+            name: 'Air pressure'
+        }; 
+              
+        layout = {
+          title: 'Air humidity',
+          xaxis: {
+              title: 'time (s)',
+          },
+          yaxis: {
+              title: 'humidity (%)',
+              range: [0,100]
+          }
+        };
+        layout1 = {
+          title: 'Temperature',
+          xaxis: {
+              title: 'time (s)',
+          },
+          yaxis: {
+              title: 'temperature (°C)',
+              range: [0,50]
+          }
+        };
+        layout2 = {
+          title: 'Air pressure',
+          xaxis: {
+              title: 'time (s)',
+          },
+          yaxis: {
+              title: 'pressure (Pa)',
+              range: [99000,100500]
+          }
+        };
+        console.log(trace);
+        var traces = new Array();
+        var traces1 = new Array();
+        var traces2 = new Array();
+        traces.push(trace);
+        traces1.push(tracet);
+        traces2.push(tracep);
+        
+        Plotly.newPlot($('#plotdiv')[0], traces, layout); 
+        Plotly.newPlot($('#plotdiv1')[0], traces1, layout1);
+        Plotly.newPlot($('#plotdiv2')[0], traces2, layout2);
+        //addTraces               
+        });
+      
+      /*$('form#emit').submit(function(event) {
+          socket.emit('my_event', {value: $('#emit_value').val()});
+          return false; });
+      $('#buttonVal').click(function(event) {
+          //console.log($('#buttonVal').val());
+          socket.emit('click_event', {value: $('#buttonVal').val()});
+          return false; });
+      $('form#disconnect').submit(function(event) {
+          socket.emit('disconnect_request');
+          return false; });         
+      });*/
+    
+    
+      $( function() {
+        $( "#tabs" ).tabs({
+          event: "mouseover"
+        });
+      } );
+      
+      $(document).ready(function() {    
+      var gauge = new RadialGauge({
+          renderTo: 'canvasID',
+          width: 300,
+          height: 300,
+          units: "humidity (%)",
+          minValue: 0,
+          maxValue: 100,
+          majorTicks: [
+              "0",
+              "10",
+              "20",
+              "30",
+              "40",
+              "50",
+              "60",
+              "70",
+              "80",
+              "90",
+              "100"
+          ],
+          minorTicks: 2,
+          strokeTicks: true,
+          highlights: [
+              {
+                  "from": 0.5,
+                  "to": 1,
+                  "color": "rgba(200, 50, 50, .75)"
+              }
+          ],
+          colorPlate: "#fff",
+          borderShadowWidth: 0,
+          borders: false,
+          needleType: "arrow",
+          needleWidth: 2,
+          needleCircleSize: 7,
+          needleCircleOuter: true,
+          needleCircleInner: false,
+          animationDuration: 1500,
+          animationRule: "linear"
+      });
+      gauge.draw();
+      gauge.value = "0";
+
+        var gauge1 = new RadialGauge({
+          renderTo: 'canvasID1',
+          width: 300,
+          height: 300,
+          units: "temperature (°C)",
+          minValue: 0,
+          maxValue: 50,
+          majorTicks: [
+              "0",
+              "5",
+              "10",
+              "15",
+              "20",
+              "25",
+              "30",
+              "35",
+              "40",
+              "45",
+              "50"
+          ],
+          minorTicks: 2,
+          strokeTicks: true,
+          highlights: [
+              {
+                  "from": 0.5,
+                  "to": 1,
+                  "color": "rgba(251, 139, 0, 1)"
+              }
+          ],
+          colorPlate: "#fff",
+          borderShadowWidth: 0,
+          borders: false,
+          needleType: "arrow",
+          needleWidth: 2,
+          needleCircleSize: 7,
+          needleCircleOuter: true,
+          needleCircleInner: false,
+          animationDuration: 1500,
+          animationRule: "linear"
+      });
+      gauge1.draw();
+      gauge1.value = "0";
+      
+      var gauge2 = new RadialGauge({
+          renderTo: 'canvasID2',
+          width: 300,
+          height: 300,
+          units: "pressure (Pa)",
+          minValue: 99000,
+          maxValue: 100600,
+          majorTicks: [
+              "99000",
+              "99200",
+              "99400",
+              "99600",
+              "99700",
+              "99800",
+              "100000",
+              "100200",
+              "100400",
+              "100600"
+          ],
+          minorTicks: 2,
+          strokeTicks: true,
+          highlights: [
+              {
+                  "from": 0.5,
+                  "to": 1,
+                  "color": "rgba(200, 50, 50, .75)"
+              }
+          ],
+          colorPlate: "#fff",
+          borderShadowWidth: 0,
+          borders: false,
+          needleType: "arrow",
+          needleWidth: 2,
+          needleCircleSize: 7,
+          needleCircleOuter: true,
+          needleCircleInner: false,
+          animationDuration: 1500,
+          animationRule: "linear"
+      });
+      gauge2.draw();
+      gauge2.value = "0";
+          
+      //    namespace = '/test';
+    //  var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+      socket.on('connect', function() {
+        socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
+
+      socket.on('my_response', function(msg) {
+        //console.log(msg.data);
+        $('#log').append('humidity: '+msg.datah+' %, temperature: '+msg.datat+' °C, pressure: '+msg.datap+' Pa <br>').html(); 
+         gauge.value = msg.datah;
+         gauge1.value = msg.datat; 
+         gauge2.value = msg.datap;  });
+
+      $('form#emit').submit(function(event) {
+          socket.emit('my_event', {value: $('#emit_value').val()});
+          return false; });
+      $('#buttonVal').click(function(event) {
+          console.log($('#buttonVal').val());
+          console.log("Vypisujem moju session: ", socket.io.engine.id);
+          socket.emit('db_event', {value: $('#buttonVal').val()});
+          if ($(this).val() == "start") {
+            $(this).val("stop");
+            $(this).text("Stop");
+          }
+          else {
+            $(this).val("start");
+            $(this).text("Start");
+          }
+          return false; }); 
+      $('form#disconnect').submit(function(event) {
+          socket.emit('disconnect_request');
+          return false; });});});        
+      
+       $(document).ready(function(){
+    var layout3 = {
+          title: 'Air humidity',
+          xaxis: {
+            title: 'time (s)',
+            range: [0,100]
+          },
+          yaxis: {
+            title: 'humidity (%)',
+            range: [0,100]
+          }
+        };  
+    var layout4 = {
+          title: 'Temperature',
+          xaxis: {
+            title: 'time (s)',
+            range: [0,100]
+          },
+          yaxis: {
+            title: 'temperature (°C)',
+            range: [0,50]
+          }
+        }; 
+    var layout5 = {
+          title: 'Air pressure',
+          xaxis: {
+            title: 'time (s)',
+            range: [0,100]
+          },
+          yaxis: {
+            title: 'pressure (Pa)',
+            range: [99000,100500]
+          }
+        };              
+    $.ajax({
+      type: "POST",
+      url: "/dbdata/4",
+      success:function(data) 
+      { console.log(data);  
+        data = JSON.parse(data);
+        console.log(data);    
+        n = Object.keys(data).length;
+        console.log(n);
+        
+        hl = [];
+        tl = [];
+        pl = [];
+        xl = [];
+
+        for (var i=0; i< n; i++){
+          hl.push(data[i].h);
+          tl.push(data[i].t); 
+          pl.push(data[i].p);
+          xl.push(data[i].x);}
+        let trace3 = [{
+            x: xl,
+            y: hl}];
+        let tracet3 = [{
+            x: xl,
+            y: tl}];  
+        let tracep3 = [{
+            x: xl,
+            y: pl}]; 
+      
+        Plotly.newPlot($('#plotdiv3')[0], trace3, layout3); 
+        Plotly.newPlot($('#plotdiv4')[0], tracet3,layout4);  
+        Plotly.newPlot($('#plotdiv5')[0], tracep3,layout5);         
+      }
+    }).done(function( o ) {
+       // do something
+    });    
+   });  
+$(document).ready(function(){
+        var layout6 = {
+          title: 'Air humidity',
+          xaxis: {
+            title: 'time (s)',
+            range: [0,100]
+          },
+          yaxis: {
+            title: 'humidity (%)',
+            range: [0,100]
+          }
+        };  
+    var layout7 = {
+          title: 'Temperature',
+          xaxis: {
+            title: 'time (s)',
+            range: [0,100]
+          },
+          yaxis: {
+            title: 'temperature (°C)',
+            range: [0,50]
+          }
+        }; 
+    var layout8 = {
+          title: 'Air pressure',
+          xaxis: {
+            title: 'time (s)',
+            range: [0,100]
+          },
+          yaxis: {
+            title: 'pressure (Pa)',
+            range: [99000,100500]
+          }
+        }; 
+    $.ajax({
+      type: "GET",
+      url: "/read/2",
+      success:function(data) 
+      { console.log(data);  
+        data = JSON.parse(data);
+        console.log(data);    
+        n = Object.keys(data).length;
+        console.log(n);
+        
+        hl1 = [];
+        tl1 = [];
+        pl1 = [];
+        xl1 = [];
+
+        for (var i=0; i< n; i++){
+          hl1.push(data[i].h);
+          tl1.push(data[i].t); 
+          pl1.push(data[i].p);
+          xl1.push(data[i].x);}
+        let trace4 = [{
+            x: xl1,
+            y: hl1}];
+        let tracet4 = [{
+            x: xl1,
+            y: tl1}];  
+        let tracep4 = [{
+            x: xl1,
+            y: pl1}]; 
+      
+        Plotly.newPlot($('#plotdiv6')[0], trace4, layout6); 
+        Plotly.newPlot($('#plotdiv7')[0], tracet4,layout7);  
+        Plotly.newPlot($('#plotdiv8')[0], tracep4,layout8);           
+      }
+    }).done(function( o ) {
+       // do something
+    });    
+   });
+
+      
+    </script>
+  </head>
+  <body>
+   
+    <div id="tabs">
+      <ul>
+        <li><a href="#tabs-1">Numeric</a></li>
+        <li><a href="#tabs-2">Humidity</a></li>
+        <li><a href="#tabs-3">Temperature</a></li>
+        <li><a href="#tabs-4">Pressure</a></li>
+        <li><a href="#tabs-5">Database</a></li>
+        <li><a href="#tabs-6">File</a></li>
+      </ul>
+      <div id="tabs-1">
+           <h1>Zadanie POIT</h1>
+  
+  <button id="buttonVal" type="submit" value="start">Start</button>
+  <form id="disconnect" method="POST" action="#">
+    <input type="submit" value="Disconnect">
+  </form> 
+  <h2>Receive:</h2>
+  <div id="log"></div>
+      </div>
+      <div id="tabs-2">      
+       <div id="plotdiv" style="width:600px;height:250px;"></div>
+       <canvas id="canvasID"></canvas>
+      </div>
+      <div id="tabs-3">
+          <div id="plotdiv1" style="width:600px;height:250px;"></div>
+          <canvas id="canvasID1"></canvas>
+      </div>
+      <div id="tabs-4">
+            <div id="plotdiv2" style="width:600px;height:250px;"></div>
+          <canvas id="canvasID2"></canvas>
+      </div>
+      <div id="tabs-5">
+       <div id="plotdiv3" style="width:600px;height:250px;"></div>
+       <div id="plotdiv4" style="width:600px;height:250px;"></div>
+       <div id="plotdiv5" style="width:600px;height:250px;"></div>
+      </div>
+      <div id="tabs-6">
+       <div id="plotdiv6" style="width:600px;height:250px;"></div>
+       <div id="plotdiv7" style="width:600px;height:250px;"></div>
+       <div id="plotdiv8" style="width:600px;height:250px;"></div>
+      </div>
+      
+    </div>
+ 
+  </body>
+</html>
