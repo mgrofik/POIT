@@ -36,13 +36,16 @@ def background_thread(args):
     q = 0
     dataList = []  
     db = MySQLdb.connect(host=myhost,user=myuser,passwd=mypasswd,db=mydb)
+    dbV = 'nieco' 
     while True:
         if args:
-          A = dict(args).get('A')
-          dbV = dict(args).get('db_value')         
-        else:
-          A = 1
-          dbV = 'nieco'  
+            print('Moje args: ')
+            print(args)
+            #A = dict(args).get('A')
+            dbV = dict(args).get('db_value')         
+        #else:
+        #    print('nemam args')
+        A = 1
         #print A
         print(dbV) 
         print(args)
@@ -58,15 +61,13 @@ def background_thread(args):
         p = p.decode()
         p=float(p)
         h=float(h)
-        t=float(t)
-        
+        t=float(t)        
         if dbV == 'start':
           dataDict = {            
             "h": h,
             "t": t,
             "p": p,
-            "x": dataCounter,
-            "q": q}
+            "x": dataCounter}
           dataList.append(dataDict)
         else:
           if len(dataList)>0:
@@ -78,26 +79,46 @@ def background_thread(args):
             maxid = cursor.fetchone()
             cursor.execute("INSERT INTO graph (id, hodnoty) VALUES (%s, %s)", (maxid[0] + 1, fuj))
             db.commit()
+            fo = open("static/files/test.txt","a+")
+            fo.write("%s\r\n" %fuj)
+            fo.close()
           dataList = []
           dataCounter = 0
         socketio.emit('my_response', {'datah': h, 'datat': t,'datap': p,'datax': dataCounter,'dataq': q}, namespace='/test')  
     db.close()
 
+#@app.route('/')
+#def index():
+ #   return render_template('index.html', async_mode=socketio.async_mode)
+
 @app.route('/')
-def index():
+def hello():
+    return render_template('tabs.html')
+
+@app.route('/index', methods=['GET', 'POST'])
+def gauge():
     return render_template('index.html', async_mode=socketio.async_mode)
 
-@app.route('/graph', methods=['GET', 'POST'])
-def graph():
-    return render_template('graph.html', async_mode=socketio.async_mode)
+# @app.route('/write')
+# def write2file():
+  #   fo = open("static/files/test.txt","a+")
+    #for i in dataList:
+   #    fo.write(dataList[i])
+    # fuj = '%fuj'
+    # fo.write("%s\r\n" %fuj)
+#     return "done"
 
-@app.route('/graphlive', methods=['GET', 'POST'])
-def graphlive():
-    return render_template('graphlive.html', async_mode=socketio.async_mode)
+# @app.route('/graph', methods=['GET', 'POST'])
+# def graph():
+#     return render_template('graph.html', async_mode=socketio.async_mode)
 
-@app.route('/gauge', methods=['GET', 'POST'])
-def gauge():
-    return render_template('gauge.html', async_mode=socketio.async_mode)
+# @app.route('/graphlive', methods=['GET', 'POST'])
+# def graphlive():
+#    return render_template('graphlive.html', async_mode=socketio.async_mode)
+
+#@app.route('/gauge', methods=['GET', 'POST'])
+#def gauge():
+#    return render_template('gauge.html', async_mode=socketio.async_mode)
 
 @app.route('/db')
 def db():
@@ -124,11 +145,21 @@ def test_message(message):
          {'data': message['value'], 'count': session['receive_count']})
 
 @socketio.on('db_event', namespace='/test')
-def db_message(message):   
+def db_message(message):
+    #print('moj message: ', message)
+    print('teraz message: ')
+    print(message)
+    #dbV = message['value']
     #session['receive_count'] = session.get('receive_count', 0) + 1 
     session['db_value'] = message['value']    
     #emit('my_response',
       #   {'data': message['value'], 'count': session['receive_count']})
+@app.route('/read/<string:num>')
+def readmyfile(num):
+    fo = open("static/files/test.txt","r")
+    rows = fo.readlines()
+    return rows[int(num)-1]
+
 
 @socketio.on('disconnect_request', namespace='/test')
 def disconnect_request():
