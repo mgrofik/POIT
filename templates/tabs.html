@@ -20,7 +20,6 @@
       var q = new Array();
       
       var trace;
-      //var tracez;
       var layout;
       
       namespace = '/test';
@@ -30,7 +29,6 @@
         socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
 
       socket.on('my_response', function(msg) {
-        //console.log(msg.data);
         //$('#log').append('x: '+msg.dataq+ ' humidity: '+msg.datah+' %, temperature: '+msg.datat+' °C, pressure: '+msg.datap+' Pa <br>').html();   
         x.push(parseFloat(msg.datax));
         h.push(parseFloat(msg.datah));
@@ -93,22 +91,8 @@
         
         Plotly.newPlot($('#plotdiv')[0], traces, layout); 
         Plotly.newPlot($('#plotdiv1')[0], traces1, layout1);
-        Plotly.newPlot($('#plotdiv2')[0], traces2, layout2);
-        //addTraces               
-        });
-      
-      /*$('form#emit').submit(function(event) {
-          socket.emit('my_event', {value: $('#emit_value').val()});
-          return false; });
-      $('#buttonVal').click(function(event) {
-          //console.log($('#buttonVal').val());
-          socket.emit('click_event', {value: $('#buttonVal').val()});
-          return false; });
-      $('form#disconnect').submit(function(event) {
-          socket.emit('disconnect_request');
-          return false; });         
-      });*/
-    
+        Plotly.newPlot($('#plotdiv2')[0], traces2, layout2);              
+        });  
     
       $( function() {
         $( "#tabs" ).tabs({
@@ -245,14 +229,10 @@
       gauge2.draw();
       gauge2.value = "0";
           
-      //    namespace = '/test';
-    //  var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-
       socket.on('connect', function() {
         socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
 
       socket.on('my_response', function(msg) {
-        //console.log(msg.data);
         $('#log').append('humidity: '+msg.datah+' %, temperature: '+msg.datat+' °C, pressure: '+msg.datap+' Pa <br>').html(); 
          gauge.value = msg.datah;
          gauge1.value = msg.datat; 
@@ -274,6 +254,18 @@
             $(this).text("Start");
           }
           return false; }); 
+      $('#buttonVal1').click(function(event) {
+          console.log($('#buttonVal1').val());
+          socket.emit('Op_event', {value: $('#buttonVal1').val()});
+          if ($(this).val() == "open") {
+            $(this).val("close");
+            $(this).text("Close");
+          }
+          else {
+            $(this).val("open");
+            $(this).text("Open");
+          }
+          return false; });     
       $('form#disconnect').submit(function(event) {
           socket.emit('disconnect_request');
           return false; });});});        
@@ -347,7 +339,6 @@
         Plotly.newPlot($('#plotdiv5')[0], tracep3,layout5);         
       }
     }).done(function( o ) {
-       // do something
     });    
    });  
 $(document).ready(function(){
@@ -419,11 +410,8 @@ $(document).ready(function(){
         Plotly.newPlot($('#plotdiv8')[0], tracep4,layout8);           
       }
     }).done(function( o ) {
-       // do something
     });    
-   });
-
-      
+   });    
     </script>
   </head>
   <body>
@@ -439,7 +427,7 @@ $(document).ready(function(){
       </ul>
       <div id="tabs-1">
            <h1>Zadanie POIT</h1>
-  
+  <button id="buttonVal1" type="submit" value="open">Open</button> 
   <button id="buttonVal" type="submit" value="start">Start</button>
   <form id="disconnect" method="POST" action="#">
     <input type="submit" value="Disconnect">
@@ -469,8 +457,6 @@ $(document).ready(function(){
        <div id="plotdiv7" style="width:600px;height:250px;"></div>
        <div id="plotdiv8" style="width:600px;height:250px;"></div>
       </div>
-      
-    </div>
- 
+    </div> 
   </body>
 </html>
