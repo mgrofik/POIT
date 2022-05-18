@@ -445,7 +445,16 @@ $('form#fileaction').submit(function(event){
     </script>
   </head>
   <body>
-   
+              <h1>Zadanie POIT</h1>
+  <button id="buttonVal1" type="submit" value="open">Open</button>
+  <br> <br>  
+  <button id="buttonVal" type="submit" value="start">Start</button>
+  <br> <br> 
+  <form id="disconnect" method="POST" action="#">
+  <input type="submit" value="Disconnect">
+  <br> <br> 
+  </form> 
+ 
     <div id="tabs">
       <ul>
         <li><a href="#tabs-1">Numeric</a></li>
@@ -456,13 +465,6 @@ $('form#fileaction').submit(function(event){
         <li><a href="#tabs-6">File</a></li>
       </ul>
       <div id="tabs-1">
-           <h1>Zadanie POIT</h1>
-
-  <button id="buttonVal1" type="submit" value="open">Open</button> 
-  <button id="buttonVal" type="submit" value="start">Start</button>
-  <form id="disconnect" method="POST" action="#">
-    <input type="submit" value="Disconnect">
-  </form> 
   <h2>Receive:</h2>
   <div id="log"></div>
       </div>
@@ -496,8 +498,6 @@ $('form#fileaction').submit(function(event){
        <div id="plotdiv7" style="width:600px;height:250px;"></div>
        <div id="plotdiv8" style="width:600px;height:250px;"></div>
       </div>
-      
     </div>
- 
   </body>
 </html>
