@@ -20,6 +20,7 @@
       var q = new Array();
       
       var trace;
+      //var tracez;
       var layout;
       
       namespace = '/test';
@@ -29,6 +30,7 @@
         socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
 
       socket.on('my_response', function(msg) {
+        //console.log(msg.data);
         //$('#log').append('x: '+msg.dataq+ ' humidity: '+msg.datah+' %, temperature: '+msg.datat+' °C, pressure: '+msg.datap+' Pa <br>').html();   
         x.push(parseFloat(msg.datax));
         h.push(parseFloat(msg.datah));
@@ -91,8 +93,22 @@
         
         Plotly.newPlot($('#plotdiv')[0], traces, layout); 
         Plotly.newPlot($('#plotdiv1')[0], traces1, layout1);
-        Plotly.newPlot($('#plotdiv2')[0], traces2, layout2);              
-        });  
+        Plotly.newPlot($('#plotdiv2')[0], traces2, layout2);
+        //addTraces               
+        });
+      
+      /*$('form#emit').submit(function(event) {
+          socket.emit('my_event', {value: $('#emit_value').val()});
+          return false; });
+      $('#buttonVal').click(function(event) {
+          //console.log($('#buttonVal').val());
+          socket.emit('click_event', {value: $('#buttonVal').val()});
+          return false; });
+      $('form#disconnect').submit(function(event) {
+          socket.emit('disconnect_request');
+          return false; });         
+      });*/
+    
     
       $( function() {
         $( "#tabs" ).tabs({
@@ -229,10 +245,14 @@
       gauge2.draw();
       gauge2.value = "0";
           
+      //    namespace = '/test';
+    //  var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
       socket.on('connect', function() {
         socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
 
       socket.on('my_response', function(msg) {
+        //console.log(msg.data);
         $('#log').append('humidity: '+msg.datah+' %, temperature: '+msg.datat+' °C, pressure: '+msg.datap+' Pa <br>').html(); 
          gauge.value = msg.datah;
          gauge1.value = msg.datat; 
@@ -268,14 +288,14 @@
           return false; });     
       $('form#disconnect').submit(function(event) {
           socket.emit('disconnect_request');
-          return false; });});});        
+          return false; });       
       
-       $(document).ready(function(){
+$('form#dbaction').submit(function(event){
     var layout3 = {
           title: 'Air humidity',
           xaxis: {
             title: 'time (s)',
-            range: [0,100]
+           // range: [0,100]
           },
           yaxis: {
             title: 'humidity (%)',
@@ -286,7 +306,7 @@
           title: 'Temperature',
           xaxis: {
             title: 'time (s)',
-            range: [0,100]
+           // range: [0,100]
           },
           yaxis: {
             title: 'temperature (°C)',
@@ -297,16 +317,19 @@
           title: 'Air pressure',
           xaxis: {
             title: 'time (s)',
-            range: [0,100]
+           //range: [0,100]
           },
           yaxis: {
             title: 'pressure (Pa)',
             range: [99000,100500]
           }
-        };              
+        }; 
+        
+    var $link = "dbdata/"+$('#dbrow').val();
+                     
     $.ajax({
       type: "POST",
-      url: "/dbdata/4",
+      url: $link,
       success:function(data) 
       { console.log(data);  
         data = JSON.parse(data);
@@ -339,14 +362,15 @@
         Plotly.newPlot($('#plotdiv5')[0], tracep3,layout5);         
       }
     }).done(function( o ) {
+       // do something
     });    
-   });  
-$(document).ready(function(){
+   return false});  
+$('form#fileaction').submit(function(event){
         var layout6 = {
           title: 'Air humidity',
           xaxis: {
             title: 'time (s)',
-            range: [0,100]
+            //range: [0,100]
           },
           yaxis: {
             title: 'humidity (%)',
@@ -357,7 +381,7 @@ $(document).ready(function(){
           title: 'Temperature',
           xaxis: {
             title: 'time (s)',
-            range: [0,100]
+            //range: [0,100]
           },
           yaxis: {
             title: 'temperature (°C)',
@@ -367,7 +391,7 @@ $(document).ready(function(){
     var layout8 = {
           title: 'Air pressure',
           xaxis: {
-            title: 'time (s)',
+            //title: 'time (s)',
             range: [0,100]
           },
           yaxis: {
@@ -375,9 +399,12 @@ $(document).ready(function(){
             range: [99000,100500]
           }
         }; 
+    
+    var $link = "read/"+$('#filerow').val();
+    
     $.ajax({
-      type: "GET",
-      url: "/read/2",
+      type: "POST",
+      url: $link,
       success:function(data) 
       { console.log(data);  
         data = JSON.parse(data);
@@ -410,8 +437,11 @@ $(document).ready(function(){
         Plotly.newPlot($('#plotdiv8')[0], tracep4,layout8);           
       }
     }).done(function( o ) {
+       // do something
     });    
-   });    
+   return false});
+
+      });}); 
     </script>
   </head>
   <body>
@@ -427,6 +457,7 @@ $(document).ready(function(){
       </ul>
       <div id="tabs-1">
            <h1>Zadanie POIT</h1>
+
   <button id="buttonVal1" type="submit" value="open">Open</button> 
   <button id="buttonVal" type="submit" value="start">Start</button>
   <form id="disconnect" method="POST" action="#">
@@ -448,15 +479,25 @@ $(document).ready(function(){
           <canvas id="canvasID2"></canvas>
       </div>
       <div id="tabs-5">
+        <form id = "dbaction" method="POST" action='#'>
+        <input type="text" name="value" id="dbrow" placeholder="Number of row in database">
+        <input type="submit" value="Choose">
+        </form>
        <div id="plotdiv3" style="width:600px;height:250px;"></div>
        <div id="plotdiv4" style="width:600px;height:250px;"></div>
        <div id="plotdiv5" style="width:600px;height:250px;"></div>
       </div>
       <div id="tabs-6">
+       <form id = "fileaction" method="POST" action='#'>
+       <input type="text" name="value" id="filerow" placeholder="Number of row in file">
+       <input type="submit" value="Choose">
+       </form>
        <div id="plotdiv6" style="width:600px;height:250px;"></div>
        <div id="plotdiv7" style="width:600px;height:250px;"></div>
        <div id="plotdiv8" style="width:600px;height:250px;"></div>
       </div>
-    </div> 
+      
+    </div>
+ 
   </body>
 </html>
