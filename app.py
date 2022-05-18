@@ -128,7 +128,7 @@ def db_message(message):
     session['Op'] = message['value']    
     #emit('my_response',
       #   {'data': message['value'], 'count': session['receive_count']})
-@app.route('/read/<string:num>')
+@app.route('/read/<string:num>', methods=['GET', 'POST'])
 def readmyfile(num):
     fo = open("static/files/test.txt","r")
     rows = fo.readlines()
